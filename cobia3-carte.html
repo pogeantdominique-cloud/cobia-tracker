@@ -201,6 +201,16 @@
 
 <div id="info-panel">
   <div class="info-item">
+    <div class="info-label">Latitude</div>
+    <div class="info-value" style="font-size:13px"><span id="lat">—</span></div>
+  </div>
+  <div class="info-divider"></div>
+  <div class="info-item">
+    <div class="info-label">Longitude</div>
+    <div class="info-value" style="font-size:13px"><span id="lon">—</span></div>
+  </div>
+  <div class="info-divider"></div>
+  <div class="info-item">
     <div class="info-label">Vitesse</div>
     <div class="info-value"><span id="sog">—</span><span class="info-unit">kn</span></div>
   </div>
@@ -231,9 +241,14 @@
     attributionControl: false
   });
 
-  // Tuiles style clair lumineux (CartoDB Voyager)
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  // Tuiles satellite Esri (style Google Earth)
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 19
+  }).addTo(map);
+  // Labels par dessus
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    opacity: 0.9
   }).addTo(map);
 
   // Marker Papeete
@@ -251,21 +266,12 @@
     offset: [8, 0]
   }).openTooltip();
 
-  // Icône bateau minimaliste style MarineTraffic
+  // Icône triangle style MarineTraffic
   function shipSVG(angle) {
     return `
-      <div style="transform: rotate(${angle}deg); width:28px; height:44px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
-        <svg width="28" height="44" viewBox="0 0 28 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Halo -->
-          <ellipse cx="14" cy="28" rx="12" ry="8" fill="#ff3b30" opacity="0.15"/>
-          <!-- Coque minimaliste : proue pointue vers le haut, poupe arrondie en bas -->
-          <path d="M14 42 L24 30 L24 8 Q24 2 14 2 Q4 2 4 8 L4 30 Z" fill="#ff3b30"/>
-          <!-- Ligne centrale -->
-          <line x1="14" y1="6" x2="14" y2="38" stroke="white" stroke-width="1.2" stroke-opacity="0.5"/>
-          <!-- Superstructure -->
-          <rect x="9" y="18" width="10" height="10" rx="2" fill="white" opacity="0.25"/>
-          <!-- Point proue -->
-          <circle cx="14" cy="40" r="2" fill="white" opacity="0.8"/>
+      <div style="transform: rotate(${angle}deg); width:20px; height:30px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));">
+        <svg width="20" height="30" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 1 L19 28 L10 23 L1 28 Z" fill="#1a9e3f" stroke="white" stroke-width="1.2" stroke-linejoin="round"/>
         </svg>
       </div>
     `;
@@ -307,8 +313,8 @@
       const icon = L.divIcon({
         className: '',
         html: shipSVG(cogDeg),
-        iconSize: [28, 44],
-        iconAnchor: [14, 22]
+        iconSize: [20, 30],
+        iconAnchor: [10, 15]
       });
 
       if (!shipMarker) {
@@ -321,6 +327,8 @@
 
       // Panel infos
       const sogKn = pos.sog ? (pos.sog / 1.852).toFixed(1) : '0.0';
+      document.getElementById('lat').textContent = pos.lat.toFixed(4) + '°';
+      document.getElementById('lon').textContent = pos.lon.toFixed(4) + '°';
       document.getElementById('sog').textContent = sogKn;
       document.getElementById('cog').textContent = Math.round(cogDeg);
 
