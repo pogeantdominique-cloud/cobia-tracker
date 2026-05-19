@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suivi COBIA 3 — En direct</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1628;
+    --accent: #00d4ff;
+    --accent2: #00ff88;
+    --warn: #ffb347;
+    --text: #e8f4fd;
+    --text-dim: #7a9bb5;
+    --panel-bg: rgba(10,22,40,0.88);
+    --border: rgba(0,212,255,0.2);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; overflow:hidden; font-family:'Inter',sans-serif; background:var(--navy); color:var(--text); }
+
+  #windy-frame {
+    position:absolute; inset:0; z-index:1;
+    width:100%; height:100%;
+    border:none;
+  }
+
+  /* Overlay transparent pour capturer les clics si besoin */
+  #overlay {
+    position:absolute; inset:0; z-index:2;
+    pointer-events:none;
+  }
+
+  .header {
+    position:absolute; top:0; left:0; right:0; z-index:1000;
+    background:linear-gradient(180deg,rgba(10,22,40,0.95) 0%,transparent 100%);
+    padding:14px 18px 50px;
+    display:flex; align-items:center; gap:12px;
+    pointer-events:none;
+  }
+  .header-logo {
+    width:40px; height:40px; background:var(--accent); border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 20px rgba(0,212,255,0.5); flex-shrink:0;
+  }
+  .header-logo svg { width:22px; height:22px; fill:var(--navy); }
+  .header-title h1 { font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:700; letter-spacing:2px; line-height:1; }
+  .header-title p { font-size:10px; color:var(--text-dim); letter-spacing:1px; text-transform:uppercase; margin-top:2px; }
+  .header-live {
+    margin-left:auto;
+    display:flex; align-items:center; gap:7px;
+    background:rgba(0,255,136,0.1); border:1px solid rgba(0,255,136,0.3);
+    border-radius:20px; padding:5px 12px;
+    font-size:11px; font-weight:500; color:var(--accent2);
+    letter-spacing:1px; text-transform:uppercase;
+    pointer-events:auto;
+  }
+  .live-dot { width:7px; height:7px; background:var(--accent2); border-radius:50%; animation:pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+
+  /* PANNEAU NAVIGATION */
+  .info-panel {
+    position:absolute; bottom:20px; left:16px; z-index:1000;
+    background:var(--panel-bg); border:1px solid var(--border);
+    border-radius:16px; padding:16px; width:250px;
+    backdrop-filter:blur(16px);
+    box-shadow:0 8px 40px rgba(0,0,0,0.6);
+  }
+  .section-label {
+    font-size:9px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--text-dim); font-weight:500; margin-bottom:8px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+  .nav-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:12px; }
+  .nav-item { background:rgba(255,255,255,0.04); border-radius:8px; padding:8px 10px; }
+  .nav-item .lbl { font-size:9px; color:var(--text-dim); letter-spacing:1px; text-transform:uppercase; margin-bottom:3px; }
+  .nav-item .val { font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:600; line-height:1; }
+  .nav-item .unt { font-size:9px; color:var(--text-dim); }
+  .nav-item.accent .val { color:var(--accent); }
+
+  /* BOUTON CENTRER */
+  .btn-center {
+    display:block; width:100%;
+    background:rgba(0,212,255,0.1); border:1px solid var(--border);
+    border-radius:8px; padding:8px;
+    color:var(--accent); font-size:11px; font-family:'Inter',sans-serif;
+    letter-spacing:1px; text-transform:uppercase; cursor:pointer;
+    margin-bottom:10px; transition:background 0.2s;
+  }
+  .btn-center:hover { background:rgba(0,212,255,0.2); }
+
+  .timestamp { font-size:10px; color:var(--text-dim); text-align:center; padding-top:10px; border-top:1px solid var(--border); }
+
+  .offline-badge {
+    display:none; position:absolute; top:70px; left:50%; transform:translateX(-50%);
+    z-index:1001; background:rgba(255,80,80,0.15); border:1px solid rgba(255,80,80,0.4);
+    color:#ff8080; padding:6px 16px; border-radius:20px; font-size:11px; letter-spacing:1px;
+    white-space:nowrap;
+  }
+
+  @media(max-width:480px){ .info-panel{ width:calc(100vw - 32px); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">
+    <svg viewBox="0 0 24 24"><path d="M3 13.5l1.5-9 4 3 3.5-6 3.5 6 4-3 1.5 9H3zm0 2h18l-1 3H4l-1-3z"/></svg>
+  </div>
+  <div class="header-title">
+    <h1>COBIA 3</h1>
+    <p>Suivi en temps réel — Polynésie française</p>
+  </div>
+  <div class="header-live"><div class="live-dot"></div>En direct</div>
+</div>
+
+<div class="offline-badge" id="offlineBadge">⚠ Signal perdu</div>
+
+<!-- Windy iframe — centré sur Tahiti au démarrage, se met à jour avec la position réelle -->
+<iframe id="windy-frame"
+  src="https://embed.windy.com/embed2.html?lat=-17&lon=-149&detailLat=-17&detailLon=-149&width=650&height=450&zoom=6&level=surface&overlay=waves&product=ecmwf&menu=&message=true&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=kt&metricTemp=%C2%B0C&radarRange=-1"
+  allowfullscreen>
+</iframe>
+
+<div id="overlay"></div>
+
+<div class="info-panel">
+  <div class="section-label">Navigation</div>
+  <div class="nav-grid">
+    <div class="nav-item accent">
+      <div class="lbl">Vitesse</div>
+      <div class="val" id="sog">--</div>
+      <div class="unt">nœuds</div>
+    </div>
+    <div class="nav-item">
+      <div class="lbl">Cap</div>
+      <div class="val" id="cog">--</div>
+      <div class="unt">degrés</div>
+    </div>
+    <div class="nav-item">
+      <div class="lbl">Latitude</div>
+      <div class="val" id="lat" style="font-size:13px">--</div>
+      <div class="unt">°S</div>
+    </div>
+    <div class="nav-item">
+      <div class="lbl">Longitude</div>
+      <div class="val" id="lon" style="font-size:13px">--</div>
+      <div class="unt">°W</div>
+    </div>
+  </div>
+
+  <button class="btn-center" onclick="centerOnShip()">🚢 Centrer sur le bateau</button>
+
+  <div class="timestamp" id="updated">Connexion en cours…</div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://ybuorfcysswkyrcytqee.supabase.co/rest/v1/position?order=created_at.desc&limit=1';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlidW9yZmN5c3N3a3lyY3l0cWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY5OTgxOTUsImV4cCI6MjA2MjU3NDE5NX0.bI8QVYH0pOUHF8R-VxG0V6YmkfXz-gJLDT7pf30Q3Z8';
+
+let currentLat = -17;
+let currentLon = -149;
+let firstLoad  = true;
+
+function buildWindyUrl(lat, lon) {
+  const z = 7;
+  return `https://embed.windy.com/embed2.html`
+    + `?lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}`
+    + `&detailLat=${lat.toFixed(4)}&detailLon=${lon.toFixed(4)}`
+    + `&width=650&height=450&zoom=${z}&level=surface`
+    + `&overlay=waves&product=ecmwf`
+    + `&menu=&message=true&marker=true&calendar=now`
+    + `&pressure=&type=map&location=coordinates`
+    + `&detail=&metricWind=kt&metricTemp=%C2%B0C&radarRange=-1`;
+}
+
+function centerOnShip() {
+  const frame = document.getElementById('windy-frame');
+  frame.src = buildWindyUrl(currentLat, currentLon);
+}
+
+async function fetchPosition() {
+  try {
+    const res  = await fetch(SUPABASE_URL, {
+      headers:{ apikey:SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
+    });
+    const data = await res.json();
+    if (!data || !data.length) return;
+
+    const pos   = data[0];
+    const lat   = parseFloat(pos.lat);
+    const lon   = parseFloat(pos.lon);
+    const cog   = pos.cog || 0;
+    const sogKn = ((pos.sog || 0) / 1.852).toFixed(1);
+
+    // Mise à jour panneau
+    document.getElementById('lat').textContent = Math.abs(lat).toFixed(4);
+    document.getElementById('lon').textContent = Math.abs(lon).toFixed(4);
+    document.getElementById('sog').textContent = sogKn;
+    document.getElementById('cog').textContent = Math.round(cog);
+
+    const d   = new Date(pos.ts || pos.created_at);
+    const ago = Math.round((Date.now() - d.getTime()) / 60000);
+    document.getElementById('updated').textContent =
+      `Mis à jour ${ago < 2 ? "il y a moins d'1 min" : "il y a " + ago + " min"}`;
+    document.getElementById('offlineBadge').style.display = ago > 10 ? 'block' : 'none';
+
+    // Centrer Windy sur la position réelle au premier chargement
+    if (firstLoad) {
+      document.getElementById('windy-frame').src = buildWindyUrl(lat, lon);
+      firstLoad = false;
+    }
+
+    currentLat = lat;
+    currentLon = lon;
+
+  } catch(e) {
+    document.getElementById('offlineBadge').style.display = 'block';
+  }
+}
+
+fetchPosition();
+setInterval(fetchPosition, 30000);
+</script>
+</body>
+</html>
