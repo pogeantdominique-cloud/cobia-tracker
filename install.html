@@ -8,23 +8,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --navy: #071018;
-    --navy2: #0d1e30;
-    --accent: #00d4ff;
-    --accent2: #00ff88;
-    --text: #e8f4fd;
-    --text-dim: #6a8ba5;
-    --border: #1a3048;
-    --android: #3ddc84;
-    --ios: #b0b8bc;
+    --navy: #0b1520;
+    --accent: #0099bb;
+    --accent2: #00aa55;
+    --text: #1a2535;
+    --text-dim: #6a7f95;
+    --border: #d4dde8;
+    --bg: #ffffff;
+    --bg2: #f4f7fa;
+    --android: #1a9e5a;
+    --ios: #555e66;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    background:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,212,255,0.08) 0%, transparent 70%),
-      linear-gradient(175deg, #0d1e30 0%, #071018 55%, #030b14 100%);
-    background-attachment: fixed;
+    background: var(--bg);
     color: var(--text);
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
@@ -39,41 +37,37 @@
   /* ── FILIGRANE LOGO EN FOND ── */
   .watermark {
     position: fixed;
-    bottom: -8%;
+    bottom: -5%;
     left: 50%;
     transform: translateX(-50%);
-    width: 700px;
-    height: 700px;
-    opacity: 0.035;
+    width: 680px; height: 680px;
+    opacity: 0.045;
     pointer-events: none;
     z-index: 0;
   }
-  .watermark svg {
-    width: 100%; height: 100%;
-    fill: var(--accent);
-  }
+  .watermark svg { width: 100%; height: 100%; fill: var(--navy); }
 
-  /* Tout le contenu au-dessus du filigrane */
-  .content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; width: 100%; }
+  .content {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; width: 100%;
+  }
 
   /* ── EN-TÊTE ── */
-  .brand {
-    display: flex; align-items: center; gap: 14px;
-    margin-bottom: 6px;
-  }
+  .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
   .brand-logo {
     width: 44px; height: 44px;
-    background: var(--accent);
+    background: var(--navy);
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 22px rgba(0,212,255,0.5);
+    box-shadow: 0 4px 16px rgba(11,21,32,0.18);
     flex-shrink: 0;
   }
-  .brand-logo svg { width: 24px; height: 24px; fill: var(--navy); }
+  .brand-logo svg { width: 24px; height: 24px; fill: #00d4ff; }
   .brand-name {
     font-family: 'Rajdhani', sans-serif;
     font-size: 30px; font-weight: 700;
     letter-spacing: 4px; line-height: 1;
+    color: var(--navy);
   }
   .brand-sub {
     font-size: 10px; color: var(--text-dim);
@@ -90,19 +84,16 @@
     border-radius: 16px;
     padding: 16px;
     margin-bottom: 10px;
-    box-shadow:
-      0 0 0 1px rgba(0,212,255,0.2),
-      0 0 40px rgba(0,212,255,0.15),
-      0 8px 32px rgba(0,0,0,0.5);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 24px rgba(11,21,32,0.1);
   }
   .qr-block img { display: block; width: 190px; height: 190px; }
   .qr-url {
     font-size: 11px; color: var(--text-dim);
-    text-align: center; margin-bottom: 32px;
-    letter-spacing: 0.8px;
+    text-align: center; margin-bottom: 32px; letter-spacing: 0.8px;
   }
 
-  /* ── SÉPARATEUR ── */
+  /* ── SEPARATEUR ── */
   .divider {
     width: 100%; max-width: 680px;
     display: flex; align-items: center; gap: 14px;
@@ -111,40 +102,32 @@
     text-transform: uppercase; color: var(--text-dim);
   }
   .divider::before,.divider::after {
-    content: ''; flex: 1;
-    height: 1px; background: var(--border);
+    content: ''; flex: 1; height: 1px; background: var(--border);
   }
 
   /* ── CARTES INSTRUCTIONS ── */
   .cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    width: 100%; max-width: 680px;
-    margin-bottom: 28px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 14px; width: 100%; max-width: 680px; margin-bottom: 28px;
   }
   .card {
-    background: rgba(13,30,48,0.75);
+    background: var(--bg2);
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 18px 18px 20px;
-    backdrop-filter: blur(8px);
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
   }
-  /* Barre colorée en haut de chaque carte */
   .card::before {
     content: ''; position: absolute;
     top: 0; left: 0; right: 0; height: 3px;
     border-radius: 14px 14px 0 0;
   }
-  .card.android::before { background: linear-gradient(90deg, var(--android), #00c853); }
-  .card.ios::before     { background: linear-gradient(90deg, #888, #ccc); }
+  .card.android::before { background: linear-gradient(90deg, #3ddc84, #00c853); }
+  .card.ios::before     { background: linear-gradient(90deg, #aaa, #ddd); }
 
   .card-header {
     display: flex; align-items: center; gap: 10px;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
+    margin-bottom: 16px; padding-bottom: 12px;
     border-bottom: 1px solid var(--border);
   }
   .card-icon {
@@ -152,8 +135,8 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 19px; flex-shrink: 0;
   }
-  .card.android .card-icon { background: rgba(61,220,132,0.1); }
-  .card.ios     .card-icon { background: rgba(180,180,180,0.1); }
+  .card.android .card-icon { background: rgba(61,220,132,0.15); }
+  .card.ios     .card-icon { background: rgba(0,0,0,0.06); }
   .card-title {
     font-family: 'Rajdhani', sans-serif;
     font-size: 19px; font-weight: 700; letter-spacing: 1px;
@@ -170,49 +153,31 @@
   .step-num {
     width: 20px; height: 20px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 700; flex-shrink: 0;
-    margin-top: 2px;
+    font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 2px;
   }
-  .card.android .step-num { background: rgba(61,220,132,0.15); color: var(--android); }
-  .card.ios     .step-num { background: rgba(180,180,180,0.12); color: var(--ios); }
+  .card.android .step-num { background: rgba(61,220,132,0.2); color: var(--android); }
+  .card.ios     .step-num { background: rgba(0,0,0,0.08); color: var(--ios); }
   .step-text { font-size: 12.5px; line-height: 1.55; color: var(--text); }
   .step-text em { font-style: normal; font-weight: 600; }
   .card.android .step-text em { color: var(--android); }
   .card.ios     .step-text em { color: var(--ios); }
 
-  /* ── NOTE BAS ── */
+  /* ── NOTE ── */
   .note {
     max-width: 560px; text-align: center;
     font-size: 12px; color: var(--text-dim); line-height: 1.65;
-    border-top: 1px solid var(--border);
-    padding-top: 20px;
+    border-top: 1px solid var(--border); padding-top: 20px;
   }
   .note strong { color: var(--accent2); font-weight: 600; }
 
-  /* ── MOBILE ── */
   @media (max-width: 520px) {
     .cards { grid-template-columns: 1fr; }
-    .watermark { width: 420px; height: 420px; bottom: 5%; opacity: 0.04; }
-  }
-
-  /* ── IMPRESSION ── */
-  @media print {
-    body { background: #f4f7fa; color: #111; padding: 20px; }
-    .watermark { opacity: 0.06; }
-    .brand-logo { background: #071018; }
-    .card { background: #fff; border-color: #ccd; }
-    .card.android::before { background: #3ddc84; }
-    .card.ios::before { background: #999; }
-    .card-title { color: #111; }
-    .step-text { color: #222; }
-    .note { color: #555; border-color: #ccd; }
-    .qr-url,.tagline,.brand-sub,.divider { color: #666; }
+    .watermark { width: 400px; height: 400px; }
   }
 </style>
 </head>
 <body>
 
-<!-- Filigrane logo en fond -->
 <div class="watermark">
   <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <path d="M3 13.5l1.5-9 4 3 3.5-6 3.5 6 4-3 1.5 9H3zm0 2h18l-1 3H4l-1-3z"/>
@@ -244,7 +209,6 @@
 
   <div class="cards">
 
-    <!-- ANDROID -->
     <div class="card android">
       <div class="card-header">
         <div class="card-icon">🤖</div>
@@ -254,30 +218,14 @@
         </div>
       </div>
       <ol class="steps">
-        <li class="step">
-          <div class="step-num">1</div>
-          <div class="step-text">Ouvrez <em>Chrome</em> et scannez le QR code</div>
-        </li>
-        <li class="step">
-          <div class="step-num">2</div>
-          <div class="step-text">Appuyez sur les <em>3 points ⋮</em> en haut à droite</div>
-        </li>
-        <li class="step">
-          <div class="step-num">3</div>
-          <div class="step-text">Appuyez sur <em>« Ajouter à l'écran d'accueil »</em></div>
-        </li>
-        <li class="step">
-          <div class="step-num">4</div>
-          <div class="step-text">Appuyez sur <em>« Ajouter »</em> pour confirmer</div>
-        </li>
-        <li class="step">
-          <div class="step-num">5</div>
-          <div class="step-text">L'icône <em>COBIA 3</em> apparaît sur votre écran ✓</div>
-        </li>
+        <li class="step"><div class="step-num">1</div><div class="step-text">Ouvrez <em>Chrome</em> et scannez le QR code</div></li>
+        <li class="step"><div class="step-num">2</div><div class="step-text">Appuyez sur les <em>3 points ⋮</em> en haut à droite</div></li>
+        <li class="step"><div class="step-num">3</div><div class="step-text">Appuyez sur <em>« Ajouter à l'écran d'accueil »</em></div></li>
+        <li class="step"><div class="step-num">4</div><div class="step-text">Appuyez sur <em>« Ajouter »</em> pour confirmer</div></li>
+        <li class="step"><div class="step-num">5</div><div class="step-text">L'icône <em>COBIA 3</em> apparaît sur votre écran ✓</div></li>
       </ol>
     </div>
 
-    <!-- IOS -->
     <div class="card ios">
       <div class="card-header">
         <div class="card-icon">🍎</div>
@@ -287,26 +235,11 @@
         </div>
       </div>
       <ol class="steps">
-        <li class="step">
-          <div class="step-num">1</div>
-          <div class="step-text">Ouvrez <em>Safari</em> et scannez le QR code</div>
-        </li>
-        <li class="step">
-          <div class="step-num">2</div>
-          <div class="step-text">Appuyez sur l'icône <em>Partager ⬆</em> en bas</div>
-        </li>
-        <li class="step">
-          <div class="step-num">3</div>
-          <div class="step-text">Faites défiler et appuyez sur <em>« Sur l'écran d'accueil »</em></div>
-        </li>
-        <li class="step">
-          <div class="step-num">4</div>
-          <div class="step-text">Appuyez sur <em>« Ajouter »</em> en haut à droite</div>
-        </li>
-        <li class="step">
-          <div class="step-num">5</div>
-          <div class="step-text">L'icône <em>COBIA 3</em> apparaît sur votre écran ✓</div>
-        </li>
+        <li class="step"><div class="step-num">1</div><div class="step-text">Ouvrez <em>Safari</em> et scannez le QR code</div></li>
+        <li class="step"><div class="step-num">2</div><div class="step-text">Appuyez sur l'icône <em>Partager ⬆</em> en bas de l'écran</div></li>
+        <li class="step"><div class="step-num">3</div><div class="step-text">Faites défiler et appuyez sur <em>« Sur l'écran d'accueil »</em></div></li>
+        <li class="step"><div class="step-num">4</div><div class="step-text">Appuyez sur <em>« Ajouter »</em> en haut à droite</div></li>
+        <li class="step"><div class="step-num">5</div><div class="step-text">L'icône <em>COBIA 3</em> apparaît sur votre écran ✓</div></li>
       </ol>
     </div>
 
@@ -314,7 +247,7 @@
 
   <div class="note">
     <strong>Aucune installation depuis un store requise.</strong><br>
-    Une fois ajoutée, la page s'ouvre en plein écran comme une vraie application, sans barre de navigateur. La position du bateau se met à jour automatiquement toutes les 10 secondes.
+    Une fois ajoutée, la page s'ouvre en plein écran comme une vraie application. La position du bateau se met à jour automatiquement toutes les 10 secondes.
   </div>
 
 </div>
