@@ -328,8 +328,8 @@ function initParticles(){
   const b=map.getBounds();
   const zoom=map.getZoom();
   // Densité adaptée au zoom : moins de particules quand on est zoomé
-  const nWind = zoom > 10 ? 600 : zoom > 8 ? 1200 : zoom > 6 ? 2000 : 2800;
-  const nWave = zoom > 10 ? 200 : zoom > 8 ? 400  : zoom > 6 ? 700  : 1000;
+  const nWind = zoom > 11 ? 150 : zoom > 9 ? 350 : zoom > 7 ? 800 : zoom > 5 ? 1500 : 2200;
+  const nWave = zoom > 11 ? 100 : zoom > 9 ? 220 : zoom > 7 ? 450 : zoom > 5 ? 750  : 1000;
   windParticles=Array.from({length:nWind},()=>newParticle(b));
   waveParticles=Array.from({length:nWave},()=>newWaveParticle(b));
 }
