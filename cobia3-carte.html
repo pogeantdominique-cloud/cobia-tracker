@@ -305,7 +305,7 @@ function newParticle(b){
   const dLat=b.getNorth()-b.getSouth(), dLon=b.getEast()-b.getWest();
   const zoom=map.getZoom();
   // Traînées plus courtes au zoom pour éviter la surcharge
-  const maxAge = zoom > 11 ? 40 : zoom > 9 ? 70 : zoom > 7 ? 120 : 200;
+  const maxAge = zoom > 11 ? 20 : zoom > 9 ? 35 : zoom > 7 ? 60 : 100;
   return {
     lat:b.getSouth()+Math.random()*dLat,
     lon:b.getWest()+Math.random()*dLon,
@@ -354,7 +354,7 @@ function animateWind(){
   const scale=(zoom > 9 ? 0.0015 : zoom > 7 ? 0.003 : 0.006)/Math.max(dLat,0.1);
 
   // Effacement adapté au zoom : plus rapide quand zoomé pour éviter surcharge
-  const fadeRate = map.getZoom() > 9 ? 0.06 : map.getZoom() > 7 ? 0.035 : 0.022;
+  const fadeRate = map.getZoom() > 9 ? 0.10 : map.getZoom() > 7 ? 0.06 : 0.035;
   ctx.globalCompositeOperation='destination-out';
   ctx.fillStyle=`rgba(0,0,0,${fadeRate})`;
   ctx.fillRect(0,0,canvas.width,canvas.height);
