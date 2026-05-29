@@ -261,25 +261,27 @@ let windGrid = null;
 let waveGrid = null;
 
 let windParticles = [], waveParticles = [];
-const NPART = 1500;
+const NPART      = 4000;  // dense comme Windy
+const NPART_WAVE = 1200;
 
-function windColor(spd){
-  const k=spd*1.944;
-  if(k<5)  return [220,230,240];
-  if(k<10) return [200,240,140];
-  if(k<15) return [255,240,60];
-  if(k<20) return [255,170,30];
-  if(k<25) return [255,80,30];
-  return [255,30,30];
+// ── PALETTES WINDY ────────────────────────────────────────────────────
+function windColor(spd){ // spd en m/s
+  const k=spd*1.944; // → nœuds
+  if(k< 3) return [140,190,255];  // bleu très pâle — calme
+  if(k< 7) return [55,215,250];   // cyan vif
+  if(k<12) return [40,220,105];   // vert Windy
+  if(k<18) return [248,218,42];   // jaune
+  if(k<25) return [252,125,22];   // orange
+  if(k<35) return [238,38,38];    // rouge
+  return [180,0,200];             // violet — tempête
 }
-function waveColor(h){
-  if(h<0.5) return [40,120,255];
-  if(h<1.0) return [0,200,255];
-  if(h<1.5) return [0,240,200];
-  if(h<2.0) return [0,230,160];
-  if(h<2.5) return [0,210,120];
-  if(h<3.5) return [100,240,180];
-  return [200,255,220];
+function waveColor(h){ // h en mètres
+  if(h<0.5) return [55,85,210];
+  if(h<1.0) return [30,155,248];
+  if(h<1.5) return [22,212,218];
+  if(h<2.0) return [18,225,158];
+  if(h<3.0) return [210,232,42];
+  return [245,72,32];
 }
 
 function interp(grid, lat, lon){
@@ -301,29 +303,30 @@ function interp(grid, lat, lon){
 function newParticle(b){
   const dLat=b.getNorth()-b.getSouth(), dLon=b.getEast()-b.getWest();
   const zoom=map.getZoom();
-  const maxAge = zoom > 9 ? 25 : zoom > 7 ? 40 : 60;
+  // Traînées longues style Windy : maxAge élevé
+  const maxAge = zoom > 9 ? 120 : zoom > 7 ? 175 : 250;
   return {
     lat:b.getSouth()+Math.random()*dLat,
     lon:b.getWest()+Math.random()*dLon,
     age:Math.floor(Math.random()*maxAge),
-    maxAge:maxAge+Math.floor(Math.random()*15)
+    maxAge:maxAge+Math.floor(Math.random()*50)
   };
 }
 
 function newWaveParticle(b){
   const zoom=map.getZoom();
-  const maxAge = zoom > 9 ? 12 : zoom > 7 ? 18 : 25;
+  const maxAge = zoom > 9 ? 50 : zoom > 7 ? 75 : 110;
   return {
     lat:b.getSouth()+Math.random()*(b.getNorth()-b.getSouth()),
     lon:b.getWest()+Math.random()*(b.getEast()-b.getWest()),
     age:Math.floor(Math.random()*maxAge),
-    maxAge:maxAge+Math.floor(Math.random()*8)
+    maxAge:maxAge+Math.floor(Math.random()*25)
   };
 }
 function initParticles(){
   const b=map.getBounds();
   windParticles=Array.from({length:NPART},()=>newParticle(b));
-  waveParticles=Array.from({length:800},()=>newWaveParticle(b));
+  waveParticles=Array.from({length:NPART_WAVE},()=>newWaveParticle(b));
 }
 
 let animFrame=null;
@@ -340,12 +343,14 @@ let gridAbort=null;
 
 function animateWind(){
   const b=map.getBounds();
-  const dLat=b.getNorth()-b.getSouth(), dLon=b.getEast()-b.getWest();
+  const dLat=b.getNorth()-b.getSouth();
   const zoom=map.getZoom();
-  const scale=(zoom > 9 ? 0.003 : zoom > 7 ? 0.006 : 0.012)/Math.max(dLat,0.1);
+  // Mouvement plus lent = flux gracieux comme Windy
+  const scale=(zoom > 9 ? 0.0015 : zoom > 7 ? 0.003 : 0.006)/Math.max(dLat,0.1);
 
+  // Effacement très lent = traînées longues (Windy signature)
   ctx.globalCompositeOperation='destination-out';
-  ctx.fillStyle='rgba(0,0,0,0.12)';
+  ctx.fillStyle='rgba(0,0,0,0.022)';
   ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.globalCompositeOperation='source-over';
 
@@ -361,11 +366,14 @@ function animateWind(){
       const pt1=map.latLngToContainerPoint([p.lat,p.lon]);
       p.lon+=u*scale; p.lat+=v*scale;
       const pt2=map.latLngToContainerPoint([p.lat,p.lon]);
-      const alpha=Math.min(1,p.age/15)*(1-p.age/p.maxAge)*0.75;
+      // Fondu entrée douce / sortie progressive style Windy
+      const life=p.age/p.maxAge;
+      const alpha=Math.min(1,p.age/25)*Math.pow(1-life,0.6)*0.88;
       const [r,g,b2]=windColor(mag);
       ctx.beginPath();
-      ctx.strokeStyle=`rgba(${r},${g},${b2},${alpha.toFixed(2)})`;
-      ctx.lineWidth=1.2;
+      ctx.strokeStyle=`rgba(${r},${g},${b2},${alpha.toFixed(3)})`;
+      ctx.lineWidth=Math.min(2.2, 0.9+mag*0.18); // épaisseur selon vitesse
+      ctx.lineCap='round';
       ctx.moveTo(pt1.x,pt1.y);ctx.lineTo(pt2.x,pt2.y);ctx.stroke();
     });
   }
@@ -380,14 +388,15 @@ function animateWind(){
       const {u,v,mag}=interp(waveGrid,p.lat,p.lon);
       if(mag<0.05){p.age=p.maxAge;return;}
       const pt1=map.latLngToContainerPoint([p.lat,p.lon]);
-      p.lon+=u*scale*0.2; p.lat+=v*scale*0.2;
+      p.lon+=u*scale*0.18; p.lat+=v*scale*0.18;
       const pt2=map.latLngToContainerPoint([p.lat,p.lon]);
-      const alpha=Math.min(1,p.age/15)*(1-p.age/p.maxAge)*0.6;
+      const life=p.age/p.maxAge;
+      const alpha=Math.min(1,p.age/18)*Math.pow(1-life,0.6)*0.72;
       const [r,g,b2]=waveColor(mag);
       ctx.beginPath();
-      ctx.strokeStyle=`rgba(${r},${g},${b2},${alpha.toFixed(2)})`;
-      ctx.lineWidth=3.5;
-      ctx.lineCap="round";
+      ctx.strokeStyle=`rgba(${r},${g},${b2},${alpha.toFixed(3)})`;
+      ctx.lineWidth=4.5;
+      ctx.lineCap='round';
       ctx.moveTo(pt1.x,pt1.y);ctx.lineTo(pt2.x,pt2.y);ctx.stroke();
     });
   }
