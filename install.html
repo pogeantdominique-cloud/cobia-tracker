@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Installer Suivi COBIA 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0b1520;
+    --accent: #00d4ff;
+    --accent2: #00ff88;
+    --text: #e8f4fd;
+    --text-dim: #7a9bb5;
+    --border: #1e3550;
+    --android: #3ddc84;
+    --ios: #a2aaad;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 48px;
+  }
+
+  /* ── EN-TÊTE ── */
+  .brand {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 8px;
+  }
+  .brand-logo {
+    width: 52px; height: 52px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 24px rgba(0,212,255,0.45);
+    flex-shrink: 0;
+  }
+  .brand-logo svg { width: 28px; height: 28px; fill: var(--navy); }
+  .brand-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 34px; font-weight: 700;
+    letter-spacing: 3px; line-height: 1;
+  }
+  .brand-sub {
+    font-size: 11px; color: var(--text-dim);
+    letter-spacing: 2px; text-transform: uppercase; margin-top: 4px;
+  }
+  .tagline {
+    font-size: 13px; color: var(--text-dim);
+    letter-spacing: 0.5px; margin-bottom: 32px; text-align: center;
+  }
+
+  /* ── QR CODE ── */
+  .qr-block {
+    background: white;
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 10px;
+    box-shadow: 0 0 40px rgba(0,212,255,0.2);
+  }
+  .qr-block img { display: block; width: 200px; height: 200px; }
+  .qr-url {
+    font-size: 11px; color: var(--text-dim);
+    text-align: center; margin-bottom: 36px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── CARTES INSTRUCTIONS ── */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    max-width: 680px;
+    margin-bottom: 32px;
+  }
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .card-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .card.android .card-icon { background: rgba(61,220,132,0.12); }
+  .card.ios     .card-icon { background: rgba(162,170,173,0.12); }
+  .card-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px; font-weight: 700; letter-spacing: 1px;
+  }
+  .card.android .card-title { color: var(--android); }
+  .card.ios     .card-title { color: var(--ios); }
+  .card-browser {
+    font-size: 10px; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--text-dim);
+  }
+
+  .steps { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .step {
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .step-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .card.android .step-num { background: rgba(61,220,132,0.2); color: var(--android); }
+  .card.ios     .step-num { background: rgba(162,170,173,0.2); color: var(--ios); }
+  .step-text { font-size: 13px; line-height: 1.5; color: var(--text); }
+  .step-text em {
+    font-style: normal; font-weight: 600;
+  }
+  .card.android .step-text em { color: var(--android); }
+  .card.ios     .step-text em { color: var(--ios); }
+
+  /* ── NOTE BAS ── */
+  .note {
+    max-width: 560px; text-align: center;
+    font-size: 12px; color: var(--text-dim); line-height: 1.6;
+  }
+  .note strong { color: var(--accent2); font-weight: 600; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 560px) {
+    .cards { grid-template-columns: 1fr; }
+    .brand-name { font-size: 26px; }
+  }
+
+  /* ── IMPRESSION ── */
+  @media print {
+    body { background: white; color: #111; padding: 20px; }
+    .brand-logo { background: #0b1520; }
+    .card { border-color: #ccc; background: #f9f9f9; }
+    .card-title { color: #111; }
+    .step-text { color: #222; }
+    .step-text em { color: #111; }
+    .note { color: #555; }
+    .qr-url { color: #555; }
+    .tagline, .brand-sub { color: #555; }
+  }
+</style>
+</head>
+<body>
+
+<div class="brand">
+  <div class="brand-logo">
+    <svg viewBox="0 0 24 24"><path d="M3 13.5l1.5-9 4 3 3.5-6 3.5 6 4-3 1.5 9H3zm0 2h18l-1 3H4l-1-3z"/></svg>
+  </div>
+  <div>
+    <div class="brand-name">COBIA 3</div>
+    <div class="brand-sub">Polynésie française</div>
+  </div>
+</div>
+<div class="tagline">Scannez pour suivre le bateau en temps réel</div>
+
+<div class="qr-block">
+  <img
+    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Fsuivi.cobia.pf%2Fcobia3-carte.html&format=png&ecc=M"
+    alt="QR Code Suivi COBIA 3"
+  >
+</div>
+<div class="qr-url">suivi.cobia.pf/cobia3-carte.html</div>
+
+<div class="cards">
+
+  <!-- ANDROID -->
+  <div class="card android">
+    <div class="card-header">
+      <div class="card-icon">🤖</div>
+      <div>
+        <div class="card-title">Android</div>
+        <div class="card-browser">Chrome</div>
+      </div>
+    </div>
+    <ol class="steps">
+      <li class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">Ouvrez <em>Chrome</em> et scannez le QR code ci-dessus</div>
+      </li>
+      <li class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">Appuyez sur les <em>3 points ⋮</em> en haut à droite</div>
+      </li>
+      <li class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">Appuyez sur <em>« Ajouter à l'écran d'accueil »</em></div>
+      </li>
+      <li class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">Appuyez sur <em>« Ajouter »</em> pour confirmer</div>
+      </li>
+      <li class="step">
+        <div class="step-num">5</div>
+        <div class="step-text">L'icône <em>COBIA 3</em> apparaît sur votre écran d'accueil ✓</div>
+      </li>
+    </ol>
+  </div>
+
+  <!-- IOS -->
+  <div class="card ios">
+    <div class="card-header">
+      <div class="card-icon">🍎</div>
+      <div>
+        <div class="card-title">iPhone / iPad</div>
+        <div class="card-browser">Safari</div>
+      </div>
+    </div>
+    <ol class="steps">
+      <li class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">Ouvrez <em>Safari</em> et scannez le QR code ci-dessus</div>
+      </li>
+      <li class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">Appuyez sur l'icône <em>Partager ⬆</em> en bas de l'écran</div>
+      </li>
+      <li class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">Faites défiler et appuyez sur <em>« Sur l'écran d'accueil »</em></div>
+      </li>
+      <li class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">Appuyez sur <em>« Ajouter »</em> en haut à droite</div>
+      </li>
+      <li class="step">
+        <div class="step-num">5</div>
+        <div class="step-text">L'icône <em>COBIA 3</em> apparaît sur votre écran d'accueil ✓</div>
+      </li>
+    </ol>
+  </div>
+
+</div>
+
+<div class="note">
+  <strong>Fonctionne sans installation d'application.</strong><br>
+  Une fois ajoutée à l'écran d'accueil, la page s'ouvre en plein écran comme une vraie app, sans la barre du navigateur. La position du bateau se met à jour automatiquement toutes les 10 secondes.
+</div>
+
+</body>
+</html>
