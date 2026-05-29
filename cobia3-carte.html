@@ -222,8 +222,8 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// NOTE: ajouter dest_lat,dest_lon dans Supabase avant d'activer ces colonnes ici
-const SUPABASE_URL = 'https://ysdllglxzvgwoooeztlg.supabase.co/rest/v1/position?order=created_at.desc&limit=1&select=lat,lon,sog,cog,ts,created_at,destination,dist_nm,eta';
+const SUPABASE_URL    = 'https://ysdllglxzvgwoooeztlg.supabase.co/rest/v1/position?order=created_at.desc&limit=1&select=lat,lon,sog,cog,ts,created_at,destination,dist_nm,eta';
+const WAYPOINT_URL    = 'https://ysdllglxzvgwoooeztlg.supabase.co/rest/v1/waypoint?order=created_at.desc&limit=1&select=nom,lat,lon,distance_nm,vitesse_kn,eta';
 const SUPABASE_KEY = 'sb_publishable_t3LNsavHm0kvP3Si-nK-0g_QvP2tFH-';
 const TRAIL_URL    = 'https://ysdllglxzvgwoooeztlg.supabase.co/rest/v1/position?order=created_at.asc&limit=120';
 const DIRS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
@@ -557,8 +557,6 @@ async function fetchPosition(){
     const dest = pos.destination;
     const distNm = pos.dist_nm;
     const eta = pos.eta;
-    const destLat = parseFloat(pos.dest_lat);
-    const destLon = parseFloat(pos.dest_lon);
     document.getElementById('dest').textContent = dest||'--';
     document.getElementById('distNm').textContent = distNm?distNm.toFixed(1):'--';
     if(eta){
@@ -566,17 +564,7 @@ async function fetchPosition(){
       document.getElementById('eta').textContent=etaDate.toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Pacific/Tahiti'});
     } else { document.getElementById('eta').textContent='--'; }
 
-    // Ligne de route vers le waypoint destination
-    if(!isNaN(destLat)&&!isNaN(destLon)){
-      waypointLine.setLatLngs([[lat,lon],[destLat,destLon]]);
-      const wpIcon=L.divIcon({html:`<div style="width:12px;height:12px;background:rgba(0,255,136,0.9);border:2px solid #fff;border-radius:2px;transform:rotate(45deg);box-shadow:0 0 6px rgba(0,255,136,0.7);"></div>`,className:'',iconSize:[12,12],iconAnchor:[6,6]});
-      if(!waypointMarker){waypointMarker=L.marker([destLat,destLon],{icon:wpIcon,zIndexOffset:1500}).addTo(map);}
-      else{waypointMarker.setLatLng([destLat,destLon]);waypointMarker.setIcon(wpIcon);}
-      if(dest)waypointMarker.bindTooltip(dest,{permanent:false,direction:'top',className:'wp-tooltip'});
-    } else {
-      waypointLine.setLatLngs([]);
-      if(waypointMarker){map.removeLayer(waypointMarker);waypointMarker=null;}
-    }
+    // La ligne de route est gérée par fetchWaypoint() qui lit la table waypoint
 
     // Badge "Signal perdu" : guard contre ts null (ago serait NaN sans ce guard)
     const d=new Date(pos.ts||pos.created_at);
@@ -604,6 +592,45 @@ async function fetchTrail(){
   }catch(e){}
 }
 
+async function fetchWaypoint(){
+  try{
+    const res=await fetch(WAYPOINT_URL,{headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`}});
+    const data=await res.json();
+    if(!data||!data.length){
+      waypointLine.setLatLngs([]);
+      if(waypointMarker){map.removeLayer(waypointMarker);waypointMarker=null;}
+      return;
+    }
+    const wp=data[0];
+    const wLat=parseFloat(wp.lat),wLon=parseFloat(wp.lon);
+    if(isNaN(wLat)||isNaN(wLon)){
+      waypointLine.setLatLngs([]);
+      if(waypointMarker){map.removeLayer(waypointMarker);waypointMarker=null;}
+      return;
+    }
+    // Ligne du bateau vers le waypoint (lastLat/lastLon = position courante)
+    if(lastLat!==null) waypointLine.setLatLngs([[lastLat,lastLon],[wLat,wLon]]);
+    // Marqueur losange vert
+    const wpIcon=L.divIcon({
+      html:`<div style="width:12px;height:12px;background:rgba(0,255,136,0.9);border:2px solid #fff;border-radius:2px;transform:rotate(45deg);box-shadow:0 0 6px rgba(0,255,136,0.7);"></div>`,
+      className:'',iconSize:[12,12],iconAnchor:[6,6]
+    });
+    if(!waypointMarker){waypointMarker=L.marker([wLat,wLon],{icon:wpIcon,zIndexOffset:1500}).addTo(map);}
+    else{waypointMarker.setLatLng([wLat,wLon]);waypointMarker.setIcon(wpIcon);}
+    const nom=wp.nom||'WPT';
+    waypointMarker.bindTooltip(nom,{permanent:false,direction:'top',className:'wp-tooltip'});
+    // Mise à jour panel : distance et ETA depuis la table waypoint si disponibles
+    const dNm=parseFloat(wp.distance_nm);
+    if(!isNaN(dNm)) document.getElementById('distNm').textContent=dNm.toFixed(1);
+    if(wp.eta){
+      const etaDate=new Date(wp.eta);
+      if(!isNaN(etaDate.getTime()))
+        document.getElementById('eta').textContent=etaDate.toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Pacific/Tahiti'});
+    }
+    if(nom) document.getElementById('dest').textContent=nom;
+  }catch(e){}
+}
+
 async function fetchMeteo(lat,lon){
   try{
     const [resMarine,resWind]=await Promise.all([
@@ -622,8 +649,8 @@ async function fetchMeteo(lat,lon){
   }catch(e){}
 }
 
-fetchPosition();fetchTrail();
-setInterval(fetchPosition,10000);setInterval(fetchTrail,120000);
+fetchPosition();fetchTrail();fetchWaypoint();
+setInterval(fetchPosition,10000);setInterval(fetchTrail,120000);setInterval(fetchWaypoint,15000);
 setInterval(()=>{if(lastLat){fetchMeteo(lastLat,lastLon);fetchGrids(lastLat,lastLon);}},3600000);
 </script>
 </body>
