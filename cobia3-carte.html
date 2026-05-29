@@ -222,7 +222,8 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const SUPABASE_URL = 'https://ysdllglxzvgwoooeztlg.supabase.co/rest/v1/position?order=created_at.desc&limit=1&select=lat,lon,sog,cog,ts,created_at,destination,dest_lat,dest_lon,dist_nm,eta';
+// NOTE: ajouter dest_lat,dest_lon dans Supabase avant d'activer ces colonnes ici
+const SUPABASE_URL = 'https://ysdllglxzvgwoooeztlg.supabase.co/rest/v1/position?order=created_at.desc&limit=1&select=lat,lon,sog,cog,ts,created_at,destination,dist_nm,eta';
 const SUPABASE_KEY = 'sb_publishable_t3LNsavHm0kvP3Si-nK-0g_QvP2tFH-';
 const TRAIL_URL    = 'https://ysdllglxzvgwoooeztlg.supabase.co/rest/v1/position?order=created_at.asc&limit=120';
 const DIRS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];

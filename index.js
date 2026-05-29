@@ -63,8 +63,9 @@ function parseLine(line) {
   }
 
   if (type === 'RMB' && parts[1] === 'A') {
-    // RMB : parts[4]=origine, parts[5]=destination, parts[6-9]=lat/lon dest
-    const destination = parts[5] || null;
+    // RMB : standard NMEA parts[4]=origine, parts[5]=destination
+    // TimeZero peut mettre le nom en parts[4] → on prend le premier non vide
+    const destination = parts[5] || parts[4] || null;
     const dest_lat    = nmea2deg(parts[6], parts[7]);
     const dest_lon    = nmea2deg(parts[8], parts[9]);
     const distNM      = parseFloat(parts[10]);
