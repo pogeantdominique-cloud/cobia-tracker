@@ -56,11 +56,11 @@
   .plotter-grid.single{grid-template-columns:1fr;}
 
   .cell{
-    padding:10px 12px 8px;
+    padding:6px 10px 5px;
     border-right:1px solid var(--border);
     border-bottom:1px solid var(--border);
     position:relative;
-    min-height:68px;
+    min-height:48px;
     display:flex;flex-direction:column;justify-content:space-between;
   }
   .cell:last-child,.cell:nth-child(2n){border-right:none;}
@@ -69,22 +69,22 @@
   .single .cell{border-right:none;}
 
   .cell-lbl{
-    font-size:8.5px;font-weight:600;letter-spacing:2px;
+    font-size:7.5px;font-weight:600;letter-spacing:1.8px;
     text-transform:uppercase;color:var(--text-dim);
-    margin-bottom:4px;
+    margin-bottom:2px;
   }
   .cell-val{
     font-family:'Rajdhani',sans-serif;
-    font-size:38px;font-weight:700;
+    font-size:28px;font-weight:700;
     line-height:1;color:var(--val-color);
-    letter-spacing:-1px;
+    letter-spacing:-0.5px;
   }
-  .cell-val.medium{font-size:28px;letter-spacing:0;}
-  .cell-val.small{font-size:19px;letter-spacing:0;}
+  .cell-val.medium{font-size:22px;letter-spacing:0;}
+  .cell-val.small{font-size:16px;letter-spacing:0;}
   .cell-unit{
-    font-size:9px;font-weight:500;letter-spacing:1.5px;
+    font-size:8px;font-weight:500;letter-spacing:1.2px;
     text-transform:uppercase;color:var(--text-dim);
-    margin-top:3px;
+    margin-top:1px;
   }
   .cell-val.spd{color:var(--val-spd);}
   .cell-val.wind{color:var(--val-wind);}
@@ -135,12 +135,12 @@
 
   @media(max-width:480px){
     .info-panel{width:calc(100vw - 24px);left:12px;bottom:10px;}
-    .cell{min-height:56px;padding:8px 10px 6px;}
-    .cell-val{font-size:30px;}
-    .cell-val.medium{font-size:22px;}
-    .cell-val.small{font-size:15px;}
-    .cell-val.dest{font-size:16px;}
-    .dest-row .dest-name{font-size:14px;}
+    .cell{min-height:42px;padding:5px 9px 4px;}
+    .cell-val{font-size:24px;}
+    .cell-val.medium{font-size:19px;}
+    .cell-val.small{font-size:14px;}
+    .cell-val.dest{font-size:14px;}
+    .dest-row .dest-name{font-size:13px;}
     .header-title h1{font-size:17px;}
     .header-title p{font-size:8px;}
   }
