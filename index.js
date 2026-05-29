@@ -75,7 +75,7 @@ function parseLine(line) {
       eta = new Date(Date.now() + (distNM / velocity) * 3600000).toISOString();
     }
     if (destination) {
-      lastRmb = { destination, dest_lat, dest_lon, dist_nm: isNaN(distNM)?null:distNM, eta };
+      lastRmb = { destination, dest_lat, dest_lon, dist_nm: isNaN(distNM)?null:distNM, velocity: isNaN(velocity)?null:velocity, eta };
       console.log(`[RMB] Dest: ${destination} | ${dest_lat?.toFixed(4)}, ${dest_lon?.toFixed(4)} | Dist: ${distNM?.toFixed(1)} NM | ETA: ${eta||'N/A'}`);
     }
   }
@@ -116,20 +116,10 @@ function connect() {
 }
 
 // ── ENVOI VERS SUPABASE ───────────────────────────────────────────────
-function sendToSupabase() {
-  if (!lastPos) { console.log('[SEND] En attente GPS...'); return; }
-  const payload = {
-    lat: lastPos.lat, lon: lastPos.lon,
-    sog: lastPos.sog, cog: lastPos.cog, ts: lastPos.ts,
-    destination: lastRmb?.destination || null,
-    dest_lat:    lastRmb?.dest_lat    || null,
-    dest_lon:    lastRmb?.dest_lon    || null,
-    dist_nm:     lastRmb?.dist_nm     || null,
-    eta:         lastRmb?.eta         || null,
-  };
+function postSupabase(path, payload, label) {
   const body = JSON.stringify(payload);
   const req = https.request({
-    hostname: SUPABASE_HOST, path: '/rest/v1/position', method: 'POST',
+    hostname: SUPABASE_HOST, path, method: 'POST',
     headers: {
       'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY,
       'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body),
@@ -137,14 +127,38 @@ function sendToSupabase() {
     }
   }, (res) => {
     res.resume();
-    if (res.statusCode >= 400) console.error(`[SEND] Erreur HTTP ${res.statusCode}`);
-    else console.log(`[SEND] OK ${payload.lat.toFixed(4)}, ${payload.lon.toFixed(4)} | Dest: ${payload.destination||'-'}`);
+    if (res.statusCode >= 400) console.error(`[SEND] Erreur HTTP ${res.statusCode} (${label})`);
+    else console.log(`[SEND] OK ${label}`);
   });
-  // Timeout : évite l'accumulation de connexions pendantes si Supabase est lent
-  req.setTimeout(HTTPS_TIMEOUT, () => { req.destroy(); console.error('[SEND] Timeout - requete annulee'); });
+  req.setTimeout(HTTPS_TIMEOUT, () => { req.destroy(); console.error(`[SEND] Timeout (${label})`); });
   req.on('error', (e) => console.error(`[SEND] Erreur reseau: ${e.message}`));
   req.write(body);
   req.end();
+}
+
+function sendToSupabase() {
+  if (!lastPos) { console.log('[SEND] En attente GPS...'); return; }
+
+  // ── Table position ──
+  postSupabase('/rest/v1/position', {
+    lat: lastPos.lat, lon: lastPos.lon,
+    sog: lastPos.sog, cog: lastPos.cog, ts: lastPos.ts,
+    destination: lastRmb?.destination || null,
+    dist_nm:     lastRmb?.dist_nm     || null,
+    eta:         lastRmb?.eta         || null,
+  }, `pos ${lastPos.lat.toFixed(4)}, ${lastPos.lon.toFixed(4)} | Dest: ${lastRmb?.destination||'-'}`);
+
+  // ── Table waypoint (si waypoint actif avec coordonnées) ──
+  if (lastRmb?.dest_lat !== null && lastRmb?.dest_lat !== undefined) {
+    postSupabase('/rest/v1/waypoint', {
+      nom:         lastRmb.destination,
+      lat:         lastRmb.dest_lat,
+      lon:         lastRmb.dest_lon,
+      distance_nm: lastRmb.dist_nm,
+      vitesse_kn:  lastRmb.velocity,
+      eta:         lastRmb.eta,
+    }, `waypoint ${lastRmb.destination} → ${lastRmb.dest_lat?.toFixed(4)}, ${lastRmb.dest_lon?.toFixed(4)}`);
+  }
 }
 
 console.log('=== Cobia GPS Tracker v5 ===');
