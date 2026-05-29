@@ -127,6 +127,8 @@
   .offline-badge{display:none;position:absolute;top:66px;left:50%;transform:translateX(-50%);z-index:1001;background:rgba(255,60,60,0.15);border:1px solid rgba(255,60,60,0.5);color:#ff7070;padding:5px 16px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;}
 
   .leaflet-top.leaflet-left{top:70px!important;left:10px!important;}
+  .wp-tooltip{background:rgba(0,255,136,0.15)!important;border:1px solid rgba(0,255,136,0.6)!important;color:#00ff88!important;font-family:'Rajdhani',sans-serif!important;font-size:13px!important;font-weight:700!important;letter-spacing:1px!important;padding:3px 8px!important;border-radius:4px!important;box-shadow:0 2px 8px rgba(0,0,0,0.5)!important;}
+  .wp-tooltip::before{border-top-color:rgba(0,255,136,0.6)!important;}
   .leaflet-control-zoom{border:1px solid var(--border)!important;background:var(--panel-bg)!important;border-radius:4px!important;}
   .leaflet-control-zoom a{color:var(--accent)!important;background:transparent!important;border-color:var(--border)!important;}
   .leaflet-control-attribution{background:rgba(8,18,32,0.75)!important;color:var(--text-dim)!important;font-size:9px!important;}
@@ -220,7 +222,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const SUPABASE_URL = 'https://ysdllglxzvgwoooeztlg.supabase.co/rest/v1/position?order=created_at.desc&limit=1&select=lat,lon,sog,cog,ts,created_at,destination,dist_nm,eta';
+const SUPABASE_URL = 'https://ysdllglxzvgwoooeztlg.supabase.co/rest/v1/position?order=created_at.desc&limit=1&select=lat,lon,sog,cog,ts,created_at,destination,dest_lat,dest_lon,dist_nm,eta';
 const SUPABASE_KEY = 'sb_publishable_t3LNsavHm0kvP3Si-nK-0g_QvP2tFH-';
 const TRAIL_URL    = 'https://ysdllglxzvgwoooeztlg.supabase.co/rest/v1/position?order=created_at.asc&limit=120';
 const DIRS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
@@ -523,6 +525,8 @@ function makeShipIcon(cogDeg){
 
 let shipMarker=null,trailLine=L.polyline([],{color:'rgba(0,212,255,0.45)',weight:2,dashArray:'6,5'}).addTo(map);
 let cogVector=L.polyline([],{color:'rgba(255,255,255,0.7)',weight:1.5,dashArray:'8,6'}).addTo(map);
+let waypointLine=L.polyline([],{color:'rgba(0,255,136,0.75)',weight:2,dashArray:'10,8'}).addTo(map);
+let waypointMarker=null;
 let lastLat=null,lastLon=null;
 
 async function fetchPosition(){
@@ -552,12 +556,26 @@ async function fetchPosition(){
     const dest = pos.destination;
     const distNm = pos.dist_nm;
     const eta = pos.eta;
+    const destLat = parseFloat(pos.dest_lat);
+    const destLon = parseFloat(pos.dest_lon);
     document.getElementById('dest').textContent = dest||'--';
     document.getElementById('distNm').textContent = distNm?distNm.toFixed(1):'--';
     if(eta){
       const etaDate=new Date(eta);
       document.getElementById('eta').textContent=etaDate.toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Pacific/Tahiti'});
     } else { document.getElementById('eta').textContent='--'; }
+
+    // Ligne de route vers le waypoint destination
+    if(!isNaN(destLat)&&!isNaN(destLon)){
+      waypointLine.setLatLngs([[lat,lon],[destLat,destLon]]);
+      const wpIcon=L.divIcon({html:`<div style="width:12px;height:12px;background:rgba(0,255,136,0.9);border:2px solid #fff;border-radius:2px;transform:rotate(45deg);box-shadow:0 0 6px rgba(0,255,136,0.7);"></div>`,className:'',iconSize:[12,12],iconAnchor:[6,6]});
+      if(!waypointMarker){waypointMarker=L.marker([destLat,destLon],{icon:wpIcon,zIndexOffset:1500}).addTo(map);}
+      else{waypointMarker.setLatLng([destLat,destLon]);waypointMarker.setIcon(wpIcon);}
+      if(dest)waypointMarker.bindTooltip(dest,{permanent:false,direction:'top',className:'wp-tooltip'});
+    } else {
+      waypointLine.setLatLngs([]);
+      if(waypointMarker){map.removeLayer(waypointMarker);waypointMarker=null;}
+    }
 
     // Badge "Signal perdu" : guard contre ts null (ago serait NaN sans ce guard)
     const d=new Date(pos.ts||pos.created_at);
