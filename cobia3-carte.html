@@ -188,8 +188,17 @@
   <!-- Destination — toujours visible, "--" si pas de waypoint actif -->
   <div class="dest-row" id="destSection">
     <div class="dest-name" id="dest">--</div>
-    <div class="dest-meta">
-      <span id="distNm">--</span> NM &nbsp;·&nbsp; ETA <span id="eta">--</span>
+  </div>
+  <div class="plotter-grid">
+    <div class="cell">
+      <div class="cell-lbl">Distance</div>
+      <div class="cell-val medium dest" id="distNm">--</div>
+      <div class="cell-unit">NM</div>
+    </div>
+    <div class="cell">
+      <div class="cell-lbl">ETA</div>
+      <div class="cell-val small dest" id="eta">--</div>
+      <div class="cell-unit">heure locale</div>
     </div>
   </div>
 
