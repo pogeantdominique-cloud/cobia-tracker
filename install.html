@@ -37,15 +37,15 @@
   /* ── FILIGRANE LOGO EN FOND ── */
   .watermark {
     position: fixed;
-    bottom: -5%;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
-    width: 680px; height: 680px;
-    opacity: 0.045;
+    transform: translate(-50%, -50%);
+    width: 75vmin; height: 75vmin;
+    opacity: 0.1;
     pointer-events: none;
     z-index: 0;
   }
-  .watermark svg { width: 100%; height: 100%; fill: var(--navy); }
+  .watermark img { width: 100%; height: 100%; object-fit: contain; display: block; mix-blend-mode: multiply; }
 
   .content {
     position: relative; z-index: 1;
@@ -177,9 +177,7 @@
 <body>
 
 <div class="watermark">
-  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path d="M3 13.5l1.5-9 4 3 3.5-6 3.5 6 4-3 1.5 9H3zm0 2h18l-1 3H4l-1-3z"/>
-  </svg>
+  <img src="/logo.png" alt="">
 </div>
 
 <div class="content">
