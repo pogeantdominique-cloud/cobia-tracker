@@ -304,13 +304,13 @@ function interp(grid, lat, lon){
 function newParticle(b){
   const dLat=b.getNorth()-b.getSouth(), dLon=b.getEast()-b.getWest();
   const zoom=map.getZoom();
-  // Traînées longues style Windy : maxAge élevé
-  const maxAge = zoom > 9 ? 120 : zoom > 7 ? 175 : 250;
+  // Traînées plus courtes au zoom pour éviter la surcharge
+  const maxAge = zoom > 11 ? 40 : zoom > 9 ? 70 : zoom > 7 ? 120 : 200;
   return {
     lat:b.getSouth()+Math.random()*dLat,
     lon:b.getWest()+Math.random()*dLon,
     age:Math.floor(Math.random()*maxAge),
-    maxAge:maxAge+Math.floor(Math.random()*50)
+    maxAge:maxAge+Math.floor(Math.random()*30)
   };
 }
 
@@ -328,8 +328,8 @@ function initParticles(){
   const b=map.getBounds();
   const zoom=map.getZoom();
   // Densité adaptée au zoom : moins de particules quand on est zoomé
-  const nWind = zoom > 11 ? 150 : zoom > 9 ? 350 : zoom > 7 ? 800 : zoom > 5 ? 1500 : 2200;
-  const nWave = zoom > 11 ? 100 : zoom > 9 ? 220 : zoom > 7 ? 450 : zoom > 5 ? 750  : 1000;
+  const nWind = zoom > 11 ? 60  : zoom > 9 ? 150 : zoom > 7 ? 450 : zoom > 5 ? 1000 : 1800;
+  const nWave = zoom > 11 ? 60  : zoom > 9 ? 150 : zoom > 7 ? 350 : zoom > 5 ? 600  : 900;
   windParticles=Array.from({length:nWind},()=>newParticle(b));
   waveParticles=Array.from({length:nWave},()=>newWaveParticle(b));
 }
@@ -353,9 +353,10 @@ function animateWind(){
   // Mouvement plus lent = flux gracieux comme Windy
   const scale=(zoom > 9 ? 0.0015 : zoom > 7 ? 0.003 : 0.006)/Math.max(dLat,0.1);
 
-  // Effacement très lent = traînées longues (Windy signature)
+  // Effacement adapté au zoom : plus rapide quand zoomé pour éviter surcharge
+  const fadeRate = map.getZoom() > 9 ? 0.06 : map.getZoom() > 7 ? 0.035 : 0.022;
   ctx.globalCompositeOperation='destination-out';
-  ctx.fillStyle='rgba(0,0,0,0.022)';
+  ctx.fillStyle=`rgba(0,0,0,${fadeRate})`;
   ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.globalCompositeOperation='source-over';
 
