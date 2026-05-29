@@ -275,13 +275,14 @@ function windColor(spd){ // spd en m/s
   if(k<35) return [238,38,38];    // rouge
   return [180,0,200];             // violet — tempête
 }
+// Houle : palette violet/indigo bien distincte du vent
 function waveColor(h){ // h en mètres
-  if(h<0.5) return [55,85,210];
-  if(h<1.0) return [30,155,248];
-  if(h<1.5) return [22,212,218];
-  if(h<2.0) return [18,225,158];
-  if(h<3.0) return [210,232,42];
-  return [245,72,32];
+  if(h<0.5) return [120,80,255];   // violet doux — mer calme
+  if(h<1.0) return [160,60,255];   // violet vif
+  if(h<1.5) return [200,50,240];   // mauve
+  if(h<2.0) return [230,40,200];   // rose-violet
+  if(h<3.0) return [255,40,150];   // rose chaud
+  return [255,20,80];              // rouge-rose — forte houle
 }
 
 function interp(grid, lat, lon){
@@ -325,8 +326,12 @@ function newWaveParticle(b){
 }
 function initParticles(){
   const b=map.getBounds();
-  windParticles=Array.from({length:NPART},()=>newParticle(b));
-  waveParticles=Array.from({length:NPART_WAVE},()=>newWaveParticle(b));
+  const zoom=map.getZoom();
+  // Densité adaptée au zoom : moins de particules quand on est zoomé
+  const nWind = zoom > 10 ? 600 : zoom > 8 ? 1200 : zoom > 6 ? 2000 : 2800;
+  const nWave = zoom > 10 ? 200 : zoom > 8 ? 400  : zoom > 6 ? 700  : 1000;
+  windParticles=Array.from({length:nWind},()=>newParticle(b));
+  waveParticles=Array.from({length:nWave},()=>newWaveParticle(b));
 }
 
 let animFrame=null;
@@ -388,14 +393,14 @@ function animateWind(){
       const {u,v,mag}=interp(waveGrid,p.lat,p.lon);
       if(mag<0.05){p.age=p.maxAge;return;}
       const pt1=map.latLngToContainerPoint([p.lat,p.lon]);
-      p.lon+=u*scale*0.18; p.lat+=v*scale*0.18;
+      p.lon+=u*scale*0.28; p.lat+=v*scale*0.28; // légèrement plus rapide = traînées visibles plus longtemps
       const pt2=map.latLngToContainerPoint([p.lat,p.lon]);
       const life=p.age/p.maxAge;
-      const alpha=Math.min(1,p.age/18)*Math.pow(1-life,0.6)*0.72;
+      const alpha=Math.min(1,p.age/12)*Math.pow(1-life,0.45)*0.92; // alpha plus élevé = persist malgré le fade
       const [r,g,b2]=waveColor(mag);
       ctx.beginPath();
       ctx.strokeStyle=`rgba(${r},${g},${b2},${alpha.toFixed(3)})`;
-      ctx.lineWidth=4.5;
+      ctx.lineWidth=4;
       ctx.lineCap='round';
       ctx.moveTo(pt1.x,pt1.y);ctx.lineTo(pt2.x,pt2.y);ctx.stroke();
     });
