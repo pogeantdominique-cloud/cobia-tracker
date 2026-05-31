@@ -562,16 +562,8 @@ async function fetchPosition(){
     const vecLon = lon + (vecDist/(111.32*Math.cos(lat*Math.PI/180))) * Math.sin(cogRad);
     cogVector.setLatLngs([[lat,lon],[vecLat,vecLon]]);
 
-    // Destination
-    const dest = pos.destination;
-    const distNm = pos.dist_nm;
-    const eta = pos.eta;
-    document.getElementById('dest').textContent = dest||'--';
-    document.getElementById('distNm').textContent = distNm?distNm.toFixed(1):'--';
-    if(eta){
-      const etaDate=new Date(eta);
-      document.getElementById('eta').textContent=etaDate.toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Pacific/Tahiti'});
-    } else { document.getElementById('eta').textContent='--'; }
+    // Destination (nom uniquement — dist/eta gérés exclusivement par fetchWaypoint)
+    document.getElementById('dest').textContent = pos.destination||'--';
 
     // La ligne de route est gérée par fetchWaypoint() qui lit la table waypoint
 
@@ -628,15 +620,18 @@ async function fetchWaypoint(){
     else{waypointMarker.setLatLng([wLat,wLon]);waypointMarker.setIcon(wpIcon);}
     const nom=wp.nom||'WPT';
     waypointMarker.bindTooltip(nom,{permanent:false,direction:'top',className:'wp-tooltip'});
-    // Mise à jour panel : distance et ETA depuis la table waypoint si disponibles
+    // Panel : dist, ETA et nom — fetchWaypoint est la seule source pour ces 3 valeurs
     const dNm=parseFloat(wp.distance_nm);
-    if(!isNaN(dNm)) document.getElementById('distNm').textContent=dNm.toFixed(1);
+    document.getElementById('distNm').textContent=!isNaN(dNm)?dNm.toFixed(1):'--';
+    document.getElementById('dest').textContent=nom;
     if(wp.eta){
       const etaDate=new Date(wp.eta);
-      if(!isNaN(etaDate.getTime()))
-        document.getElementById('eta').textContent=etaDate.toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Pacific/Tahiti'});
+      document.getElementById('eta').textContent=!isNaN(etaDate.getTime())
+        ?etaDate.toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Pacific/Tahiti'})
+        :'--';
+    } else {
+      document.getElementById('eta').textContent='--';
     }
-    if(nom) document.getElementById('dest').textContent=nom;
   }catch(e){}
 }
 
