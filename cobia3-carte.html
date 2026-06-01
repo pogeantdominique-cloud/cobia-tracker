@@ -125,6 +125,7 @@
 
   /* Badge hors-ligne */
   .offline-badge{display:none;position:absolute;top:66px;left:50%;transform:translateX(-50%);z-index:1001;background:rgba(255,60,60,0.15);border:1px solid rgba(255,60,60,0.5);color:#ff7070;padding:5px 16px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;}
+  .zoom-msg{display:none;position:absolute;bottom:20px;right:14px;z-index:1001;background:rgba(8,18,32,0.75);border:1px solid rgba(255,179,71,0.35);color:rgba(255,179,71,0.8);padding:4px 10px;border-radius:4px;font-size:9px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;pointer-events:none;}
 
   .leaflet-top.leaflet-left{top:70px!important;left:10px!important;}
   .wp-tooltip{background:rgba(0,255,136,0.15)!important;border:1px solid rgba(0,255,136,0.6)!important;color:#00ff88!important;font-family:'Rajdhani',sans-serif!important;font-size:13px!important;font-weight:700!important;letter-spacing:1px!important;padding:3px 8px!important;border-radius:4px!important;box-shadow:0 2px 8px rgba(0,0,0,0.5)!important;}
@@ -153,6 +154,7 @@
   <div class="header-live"><div class="live-dot"></div>En direct</div>
 </div>
 <div class="offline-badge" id="offlineBadge">⚠ Signal perdu</div>
+<div class="zoom-msg" id="zoomMsg">Zoom trop élevé — météo masquée</div>
 <div id="map"></div>
 <canvas id="wind-canvas"></canvas>
 <div class="info-panel">
@@ -362,11 +364,25 @@ function animateWind(){
   const b=map.getBounds();
   const dLat=b.getNorth()-b.getSouth();
   const zoom=map.getZoom();
+
+  // ── MASQUAGE PAR ZOOM ──
+  // Au-delà de zoom 12 la résolution ECMWF (25 km) n'a plus de sens
+  if(zoom>=13){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    canvas.style.opacity='0';
+    document.getElementById('zoomMsg').style.display=(layers.wind||layers.wave)?'block':'none';
+    animFrame=requestAnimationFrame(animateWind);
+    return;
+  }
+  document.getElementById('zoomMsg').style.display='none';
+  // Transition douce zoom 11-12 : opacité 100% → 20%
+  canvas.style.opacity = zoom>=12 ? '0.2' : zoom>=11 ? String(1-(zoom-11)*0.8) : '1';
+
   // Mouvement plus lent = flux gracieux comme Windy
   const scale=(zoom > 9 ? 0.0015 : zoom > 7 ? 0.003 : 0.006)/Math.max(dLat,0.1);
 
   // Effacement adapté au zoom : plus rapide quand zoomé pour éviter surcharge
-  const fadeRate = map.getZoom() > 9 ? 0.10 : map.getZoom() > 7 ? 0.06 : 0.035;
+  const fadeRate = zoom > 9 ? 0.10 : zoom > 7 ? 0.06 : 0.035;
   ctx.globalCompositeOperation='destination-out';
   ctx.fillStyle=`rgba(0,0,0,${fadeRate})`;
   ctx.fillRect(0,0,canvas.width,canvas.height);
