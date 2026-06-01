@@ -2,7 +2,31 @@ const net   = require('net');
 const https = require('https');
 
 const SUPABASE_HOST  = 'ysdllglxzvgwoooeztlg.supabase.co';
-const SUPABASE_KEY   = 'sb_publishable_t3LNsavHm0kvP3Si-nK-0g_QvP2tFH-';
+
+// ── PORTS CONNUS DU COBIA 3 ───────────────────────────────────────────
+const PORTS = [
+  { nom: 'Papeete',        lat: -17.5340, lon: -149.5667 },
+  { nom: 'Kaukura',        lat: -15.6500, lon: -146.8833 },
+  { nom: 'Arutua',         lat: -15.2453, lon: -146.6197 },
+  { nom: 'Apataki',        lat: -15.3167, lon: -146.4000 },
+  { nom: 'Aratika',        lat: -15.5333, lon: -145.5333 },
+  { nom: 'Fakarava',       lat: -16.0833, lon: -145.7167 },
+  { nom: 'Tetamanu',       lat: -16.5000, lon: -145.5333 },
+  { nom: 'Faaite',         lat: -16.6869, lon: -145.3328 },
+];
+const PORT_RADIUS_DEG = 0.15; // ~15 km — rayon de correspondance
+
+function resolvePortName(lat, lon, nmeaName) {
+  if (lat === null || lon === null) return nmeaName;
+  let nearest = null, minDist = Infinity;
+  PORTS.forEach(p => {
+    const d = Math.sqrt((p.lat-lat)**2 + (p.lon-lon)**2);
+    if (d < minDist) { minDist = d; nearest = p; }
+  });
+  if (nearest && minDist <= PORT_RADIUS_DEG) return nearest.nom;
+  return nmeaName; // waypoint hors liste → on garde le nom NMEA
+}
+const SUPABASE_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzZGxsZ2x4enZnd29vb2V6dGxnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODM1NTU0NywiZXhwIjoyMDkzOTMxNTQ3fQ.PFBJroGneBbW7LeiOPE4JJBytbAirlV10-xuapQYK6Y';
 const TZ_HOST        = '127.0.0.1';
 const TZ_PORT        = 5556;
 const SEND_INTERVAL  = 10000;
@@ -75,7 +99,8 @@ function parseLine(line) {
       eta = new Date(Date.now() + (distNM / velocity) * 3600000).toISOString();
     }
     if (destination) {
-      lastRmb = { destination, dest_lat, dest_lon, dist_nm: isNaN(distNM)?null:distNM, velocity: isNaN(velocity)?null:velocity, eta };
+      const resolvedName = resolvePortName(dest_lat, dest_lon, destination);
+      lastRmb = { destination: resolvedName, dest_lat, dest_lon, dist_nm: isNaN(distNM)?null:distNM, velocity: isNaN(velocity)?null:velocity, eta };
       console.log(`[RMB] Dest: ${destination} | ${dest_lat?.toFixed(4)}, ${dest_lon?.toFixed(4)} | Dist: ${distNM?.toFixed(1)} NM | ETA: ${eta||'N/A'}`);
     }
   }
