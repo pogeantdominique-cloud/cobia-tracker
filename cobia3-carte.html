@@ -497,7 +497,7 @@ async function fetchWaveGrid(clat,clon,signal){
     lats.forEach(lat=>lons.forEach(lon=>{allLats.push(lat);allLons.push(lon);}));
 
     const res=await fetch(
-      `https://marine-api.open-meteo.com/v1/marine?latitude=${allLats}&longitude=${allLons}&hourly=wave_height,wave_direction&forecast_days=1&timezone=GMT&models=mfwam`,
+      `https://marine-api.open-meteo.com/v1/marine?latitude=${allLats}&longitude=${allLons}&hourly=wave_height,wave_direction&forecast_days=1&timezone=GMT&models=best_match`,
       {signal}
     );
     const results=await res.json();
@@ -658,7 +658,7 @@ async function fetchWaypoint(){
 async function fetchMeteo(lat,lon){
   try{
     const [resMarine,resWind]=await Promise.all([
-      fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&hourly=wave_height,wave_period&forecast_days=1&timezone=auto&models=mfwam`),
+      fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&hourly=wave_height,wave_period&forecast_days=1&timezone=auto&models=best_match`),
       fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=wind_speed_10m,wind_direction_10m&wind_speed_unit=kn&forecast_days=1&timezone=auto&models=ecmwf_ifs025`)
     ]);
     const marine=await resMarine.json(),wind=await resWind.json();
