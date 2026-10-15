@@ -253,7 +253,7 @@ function toggleLayer(type){
 // ── CARTE ─────────────────────────────────────────────────────────────
 const map = L.map('map',{zoomControl:true}).setView([-17,-149],7);
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:17}).addTo(map);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB',subdomains:'abcd',maxZoom:17,opacity:0.8}).addTo(map);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:17}).addTo(map);
 
 // ── CANVAS ────────────────────────────────────────────────────────────
 const canvas = document.getElementById('wind-canvas');
