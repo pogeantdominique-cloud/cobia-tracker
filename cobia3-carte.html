@@ -162,14 +162,16 @@
   .sp-wave.w2{animation-duration:11s;animation-direction:reverse;opacity:.6;}
   .sp-skip{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom,0px));font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);opacity:0;animation:spFade .6s ease 2.6s forwards;}
 
-  #splash::before{content:"";position:absolute;top:0;left:0;right:0;height:64%;z-index:-2;background:url('/cobia3-accueil.jpg') 66% center/cover no-repeat;transform-origin:66% 60%;animation:spZoom 9s ease-out forwards;}
+  #splash::before{content:"";position:absolute;top:-30px;left:-30px;right:-30px;height:calc(64% + 30px);z-index:-3;background:url('/cobia3-accueil.jpg') 40% center/cover no-repeat;filter:blur(18px) brightness(.55) saturate(1.2);}
+  .sp-photo{position:absolute;left:0;right:0;top:calc(19% + env(safe-area-inset-top,0px));width:100%;height:auto;z-index:-2;display:block;transform-origin:50% 50%;animation:spZoom 9s ease-out forwards;-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 12%,#000 88%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 12%,#000 88%,transparent 100%);}
+  @media (min-aspect-ratio:1/1){#splash::before{inset:0 0 auto 0;height:64%;filter:none;background-position:66% center;} .sp-photo{display:none;}}
   #splash::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(11,21,32,.45) 0%,rgba(11,21,32,0) 14%,rgba(11,21,32,0) 38%,rgba(11,21,32,.85) 56%,var(--navy) 64%);}
   #splash{isolation:isolate;justify-content:flex-end;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));}
   .sp-hello{text-shadow:0 2px 16px rgba(0,0,0,.6);}
   .sp-name{text-shadow:0 0 18px rgba(0,212,255,.45),0 2px 12px rgba(0,0,0,.7);}
   .sp-welcome{color:#cfe0ee;text-shadow:0 1px 8px rgba(0,0,0,.7);}
-  @keyframes spZoom{from{transform:scale(1.12)}to{transform:scale(1)}}
-  @media (prefers-reduced-motion:reduce){#splash::before{animation:none;}}
+  @keyframes spZoom{from{transform:scale(1.06)}to{transform:scale(1)}}
+  @media (prefers-reduced-motion:reduce){.sp-photo{animation:none;}}
   @keyframes spLogo{to{opacity:1;transform:scale(1) rotate(0)}}
   @keyframes spUp{to{opacity:1;transform:translateY(0)}}
   @keyframes spFade{to{opacity:1}}
@@ -183,6 +185,7 @@
 </head>
 <body>
 <div id="splash" role="dialog" aria-label="Bienvenue">
+  <img class="sp-photo" src="/cobia3-accueil.jpg" alt="" aria-hidden="true">
   <div class="sp-logo"><img src="/logo.png" alt="Logo Cobia"></div>
   <div class="sp-hello" aria-label="Ia ora na"><span style="animation-delay:0.60s">I</span><span style="animation-delay:0.68s">a</span><span class="sp-sp"></span><span style="animation-delay:0.84s">o</span><span style="animation-delay:0.92s">r</span><span style="animation-delay:1.00s">a</span><span class="sp-sp"></span><span style="animation-delay:1.16s">n</span><span style="animation-delay:1.24s">a</span></div>
   <div class="sp-welcome"><b>MAEVA</b> sur le suivi de votre goélette</div>
