@@ -147,7 +147,7 @@
   }
 
   /* ── ÉCRAN D'ACCUEIL ── */
-  #splash{position:fixed;inset:0;z-index:5000;background:radial-gradient(ellipse at 50% 38%,#12324a 0%,var(--navy) 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;overflow:hidden;cursor:pointer;transition:opacity .7s ease,visibility .7s;}
+  #splash{position:fixed;inset:0;z-index:5000;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;overflow:hidden;cursor:pointer;transition:opacity .7s ease,visibility .7s;}
   #splash.hide{opacity:0;visibility:hidden;}
   .sp-logo{width:96px;height:96px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 2px rgba(0,212,255,.35),0 0 40px rgba(0,212,255,.25);opacity:0;transform:scale(.6) rotate(-20deg);animation:spLogo .9s cubic-bezier(.2,.9,.3,1.3) .1s forwards;}
   .sp-logo img{width:100%;height:100%;object-fit:cover;display:block;}
@@ -161,6 +161,15 @@
   .sp-wave{position:absolute;bottom:0;left:0;width:200%;height:100%;animation:spWave 7s linear infinite;}
   .sp-wave.w2{animation-duration:11s;animation-direction:reverse;opacity:.6;}
   .sp-skip{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom,0px));font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);opacity:0;animation:spFade .6s ease 2.6s forwards;}
+
+  #splash::before{content:"";position:absolute;top:0;left:0;right:0;height:64%;z-index:-2;background:url('/cobia3-accueil.jpg') 66% center/cover no-repeat;transform-origin:66% 60%;animation:spZoom 6s ease-out forwards;}
+  #splash::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(11,21,32,.45) 0%,rgba(11,21,32,0) 14%,rgba(11,21,32,0) 38%,rgba(11,21,32,.85) 56%,var(--navy) 64%);}
+  #splash{isolation:isolate;justify-content:flex-end;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));}
+  .sp-hello{text-shadow:0 2px 16px rgba(0,0,0,.6);}
+  .sp-name{text-shadow:0 0 18px rgba(0,212,255,.45),0 2px 12px rgba(0,0,0,.7);}
+  .sp-welcome{color:#cfe0ee;text-shadow:0 1px 8px rgba(0,0,0,.7);}
+  @keyframes spZoom{from{transform:scale(1.12)}to{transform:scale(1)}}
+  @media (prefers-reduced-motion:reduce){#splash::before{animation:none;}}
   @keyframes spLogo{to{opacity:1;transform:scale(1) rotate(0)}}
   @keyframes spUp{to{opacity:1;transform:translateY(0)}}
   @keyframes spFade{to{opacity:1}}
