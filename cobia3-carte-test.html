@@ -162,7 +162,7 @@
   .sp-wave.w2{animation-duration:11s;animation-direction:reverse;opacity:.6;}
   .sp-skip{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom,0px));font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);opacity:0;animation:spFade .6s ease 2.6s forwards;}
 
-  #splash::before{content:"";position:absolute;top:0;left:0;right:0;height:64%;z-index:-2;background:url('/cobia3-accueil.jpg') 66% center/cover no-repeat;transform-origin:66% 60%;animation:spZoom 6s ease-out forwards;}
+  #splash::before{content:"";position:absolute;top:0;left:0;right:0;height:64%;z-index:-2;background:url('/cobia3-accueil.jpg') 66% center/cover no-repeat;transform-origin:66% 60%;animation:spZoom 9s ease-out forwards;}
   #splash::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(11,21,32,.45) 0%,rgba(11,21,32,0) 14%,rgba(11,21,32,0) 38%,rgba(11,21,32,.85) 56%,var(--navy) 64%);}
   #splash{isolation:isolate;justify-content:flex-end;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));}
   .sp-hello{text-shadow:0 2px 16px rgba(0,0,0,.6);}
@@ -731,7 +731,7 @@ setInterval(()=>{if(lastLat){fetchMeteo(lastLat,lastLon);fetchGrids(lastLat,last
   function close(){ if(sp.classList.contains('hide')) return; sp.classList.add('hide'); setTimeout(function(){ sp.remove(); },800); }
   if(seen){ sp.remove(); return; }
   sp.addEventListener('click',close);
-  setTimeout(close,4200);
+  setTimeout(close,8500);
 })();
 </script>
 </body>
