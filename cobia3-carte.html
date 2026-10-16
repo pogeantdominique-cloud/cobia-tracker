@@ -145,9 +145,52 @@
     .header-title h1{font-size:17px;}
     .header-title p{font-size:8px;}
   }
+
+  /* ── ÉCRAN D'ACCUEIL ── */
+  #splash{position:fixed;inset:0;z-index:5000;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;overflow:hidden;cursor:pointer;transition:opacity .7s ease,visibility .7s;}
+  #splash.hide{opacity:0;visibility:hidden;}
+  .sp-logo{width:96px;height:96px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 2px rgba(0,212,255,.35),0 0 40px rgba(0,212,255,.25);opacity:0;transform:scale(.6) rotate(-20deg);animation:spLogo .9s cubic-bezier(.2,.9,.3,1.3) .1s forwards;}
+  .sp-logo img{width:100%;height:100%;object-fit:cover;display:block;}
+  .sp-hello{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:clamp(44px,13vw,72px);letter-spacing:3px;line-height:1;color:var(--text);display:flex;justify-content:center;flex-wrap:wrap;}
+  .sp-hello span{display:inline-block;opacity:0;transform:translateY(24px);animation:spUp .5s ease-out forwards;}
+  .sp-hello .sp-sp{width:.3em;}
+  .sp-welcome{font-size:14px;font-weight:300;color:var(--text-dim);letter-spacing:1px;opacity:0;animation:spFade .8s ease 1.5s forwards;max-width:36ch;}
+  .sp-welcome b{color:var(--accent2);font-weight:500;letter-spacing:2px;}
+  .sp-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:clamp(26px,8vw,38px);letter-spacing:8px;color:var(--accent);opacity:0;animation:spName 1s ease 2s forwards;text-shadow:0 0 18px rgba(0,212,255,.45);}
+  .sp-waves{position:absolute;left:0;right:0;bottom:0;height:120px;pointer-events:none;}
+  .sp-wave{position:absolute;bottom:0;left:0;width:200%;height:100%;animation:spWave 7s linear infinite;}
+  .sp-wave.w2{animation-duration:11s;animation-direction:reverse;opacity:.6;}
+  .sp-skip{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom,0px));font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);opacity:0;animation:spFade .6s ease 2.6s forwards;}
+
+  #splash::before{content:"";position:absolute;top:0;left:0;right:0;height:64%;z-index:-2;background:url('/cobia3-accueil.jpg') 66% center/cover no-repeat;transform-origin:66% 60%;animation:spZoom 9s ease-out forwards;}
+  #splash::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(11,21,32,.45) 0%,rgba(11,21,32,0) 14%,rgba(11,21,32,0) 38%,rgba(11,21,32,.85) 56%,var(--navy) 64%);}
+  #splash{isolation:isolate;justify-content:flex-end;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));}
+  .sp-hello{text-shadow:0 2px 16px rgba(0,0,0,.6);}
+  .sp-name{text-shadow:0 0 18px rgba(0,212,255,.45),0 2px 12px rgba(0,0,0,.7);}
+  .sp-welcome{color:#cfe0ee;text-shadow:0 1px 8px rgba(0,0,0,.7);}
+  @keyframes spZoom{from{transform:scale(1.12)}to{transform:scale(1)}}
+  @media (prefers-reduced-motion:reduce){#splash::before{animation:none;}}
+  @keyframes spLogo{to{opacity:1;transform:scale(1) rotate(0)}}
+  @keyframes spUp{to{opacity:1;transform:translateY(0)}}
+  @keyframes spFade{to{opacity:1}}
+  @keyframes spName{from{opacity:0;letter-spacing:22px}to{opacity:1;letter-spacing:8px}}
+  @keyframes spWave{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media (prefers-reduced-motion:reduce){
+    .sp-logo,.sp-hello span,.sp-welcome,.sp-name,.sp-skip{animation:none;opacity:1;transform:none;}
+    .sp-wave{animation:none;}
+  }
 </style>
 </head>
 <body>
+<div id="splash" role="dialog" aria-label="Bienvenue">
+  <div class="sp-logo"><img src="/logo.png" alt="Logo Cobia"></div>
+  <div class="sp-hello" aria-label="Ia ora na"><span style="animation-delay:0.60s">I</span><span style="animation-delay:0.68s">a</span><span class="sp-sp"></span><span style="animation-delay:0.84s">o</span><span style="animation-delay:0.92s">r</span><span style="animation-delay:1.00s">a</span><span class="sp-sp"></span><span style="animation-delay:1.16s">n</span><span style="animation-delay:1.24s">a</span></div>
+  <div class="sp-welcome"><b>MAEVA</b> sur le suivi de votre goélette</div>
+  <div class="sp-name">COBIA III</div>
+  <div class="sp-waves" aria-hidden="true"><svg class="sp-wave" viewBox="0 0 1440 120" preserveAspectRatio="none"><path fill="rgba(0,212,255,0.10)" d="M0 70 C120 40 240 40 360 70 S600 100 720 70 S960 40 1080 70 S1320 100 1440 70 L1440 120 L0 120Z"/></svg><svg class="sp-wave w2" viewBox="0 0 1440 120" preserveAspectRatio="none"><path fill="rgba(0,212,255,0.16)" d="M0 70 C120 40 240 40 360 70 S600 100 720 70 S960 40 1080 70 S1320 100 1440 70 L1440 120 L0 120Z"/></svg></div>
+  <div class="sp-skip">Touchez pour continuer</div>
+</div>
+
 <div class="header">
   <div class="header-logo"><img src="/logo.png" alt="Logo Cobia"></div>
   <div class="header-title"><h1>COBIA 3</h1><p>Suivi en temps réel — Polynésie française</p></div>
@@ -676,6 +719,20 @@ async function fetchMeteo(lat,lon){
 fetchPosition();fetchTrail();fetchWaypoint();
 setInterval(fetchPosition,10000);setInterval(fetchTrail,120000);setInterval(fetchWaypoint,15000);
 setInterval(()=>{if(lastLat){fetchMeteo(lastLat,lastLon);fetchGrids(lastLat,lastLon);}},3600000);
+</script>
+
+<script>
+/* Écran d'accueil : affiché à chaque ouverture de l'application, une fois par session */
+(function(){
+  var sp=document.getElementById('splash');
+  if(!sp) return;
+  var seen=false;
+  try{ seen=sessionStorage.getItem('cobiaSplash')==='1'; sessionStorage.setItem('cobiaSplash','1'); }catch(e){}
+  function close(){ if(sp.classList.contains('hide')) return; sp.classList.add('hide'); setTimeout(function(){ sp.remove(); },800); }
+  if(seen){ sp.remove(); return; }
+  sp.addEventListener('click',close);
+  setTimeout(close,8500);
+})();
 </script>
 </body>
 </html>
