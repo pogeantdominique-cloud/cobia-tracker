@@ -124,6 +124,15 @@
   .timestamp{font-size:8.5px;color:var(--text-dim);text-align:right;flex:1;letter-spacing:0.3px;line-height:1.3;}
 
   /* Badge hors-ligne */
+  .header-live.stale{background:rgba(255,179,71,0.1);border-color:rgba(255,179,71,0.4);color:var(--warn);}
+  .header-live.stale .live-dot{background:var(--warn);animation:none;}
+  .notice{display:none;position:absolute;top:calc(64px + env(safe-area-inset-top,0px));left:12px;right:12px;margin:0 auto;max-width:440px;z-index:1002;background:rgba(40,22,6,0.92);border:1px solid rgba(255,179,71,0.55);border-left:3px solid var(--warn);border-radius:6px;padding:10px 14px;box-shadow:0 8px 30px rgba(0,0,0,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
+  .notice.show{display:flex;align-items:center;gap:12px;}
+  .notice-logo{width:42px;height:42px;flex-shrink:0;border-radius:50%;overflow:hidden;box-shadow:0 0 0 2px rgba(255,179,71,.4),0 0 16px rgba(255,179,71,.25);animation:ldSpin 2.4s linear infinite;}
+  .notice-logo img{width:100%;height:100%;object-fit:cover;display:block;}
+  .notice-body{min-width:0;}
+  .notice-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;color:var(--warn);text-transform:uppercase;}
+  .notice-text{font-size:11.5px;line-height:1.45;color:#f3e3cf;margin-top:3px;}
   .offline-badge{display:none;position:absolute;top:66px;left:50%;transform:translateX(-50%);z-index:1001;background:rgba(255,60,60,0.15);border:1px solid rgba(255,60,60,0.5);color:#ff7070;padding:5px 16px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;}
   .zoom-msg{display:none;position:absolute;bottom:20px;right:14px;z-index:1001;background:rgba(8,18,32,0.75);border:1px solid rgba(255,179,71,0.35);color:rgba(255,179,71,0.8);padding:4px 10px;border-radius:4px;font-size:9px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;pointer-events:none;}
 
@@ -211,6 +220,13 @@
   <div class="header-live"><div class="live-dot"></div>En direct</div>
 </div>
 <div class="offline-badge" id="offlineBadge">⚠ Signal perdu</div>
+<div class="notice" id="notice" role="status">
+  <div class="notice-logo"><img src="/logo.png" alt=""></div>
+  <div class="notice-body">
+    <div class="notice-title">⚠ Suivi momentanément interrompu</div>
+    <div class="notice-text">Un souci technique empêche actuellement la diffusion des informations GPS du COBIA III. Le service sera rétabli en fin de semaine et prêt pour le prochain voyage. Merci de votre compréhension. Belle journée.</div>
+  </div>
+</div>
 <div class="zoom-msg" id="zoomMsg">Zoom trop élevé — météo masquée</div>
 <div id="map"></div>
 <div id="loader" role="status" aria-live="polite">
@@ -650,8 +666,14 @@ async function fetchPosition(){
     // Badge "Signal perdu" : guard contre ts null (ago serait NaN sans ce guard)
     const d=new Date(pos.ts||pos.created_at);
     const ago=isNaN(d.getTime())?Infinity:Math.round((Date.now()-d.getTime())/60000);
-    document.getElementById('updated').textContent='Mis a jour '+(ago<2?"il y a moins d'1 min":"il y a "+ago+" min");
-    document.getElementById('offlineBadge').style.display=ago>10?'block':'none';
+    const agoTxt=ago<2?"il y a moins d'1 min":ago<60?"il y a "+ago+" min":ago<1440?"il y a "+Math.floor(ago/60)+" h":"il y a "+Math.floor(ago/1440)+" j";
+    document.getElementById('updated').textContent='Mis à jour '+agoTxt;
+    // Bandeau d'information : affiché automatiquement si plus de 30 min sans nouvelle position
+    const stale=ago>30;
+    document.getElementById('notice').classList.toggle('show',stale);
+    const live=document.querySelector('.header-live');
+    if(live){ live.classList.toggle('stale',stale); const t=[...live.childNodes].find(n=>n.nodeType===3&&n.textContent.trim()); if(t) t.textContent=stale?' Hors ligne':' En direct'; }
+    document.getElementById('offlineBadge').style.display=(ago>10&&!stale)?'block':'none';
 
     if(lastLat===null||Math.abs(lat-lastLat)>0.5||Math.abs(lon-lastLon)>0.5){
       fetchMeteo(lat,lon);
