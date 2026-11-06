@@ -313,7 +313,8 @@
 const SUPABASE_URL    = 'https://ysdllglxzvgwoooeztlg.supabase.co/rest/v1/position?order=created_at.desc&limit=1&select=lat,lon,sog,cog,ts,created_at,destination,dist_nm,eta';
 const WAYPOINT_URL    = 'https://ysdllglxzvgwoooeztlg.supabase.co/rest/v1/waypoint?order=created_at.desc&limit=1&select=nom,lat,lon,distance_nm,vitesse_kn,eta';
 const SUPABASE_KEY = 'sb_publishable_t3LNsavHm0kvP3Si-nK-0g_QvP2tFH-';
-const TRAIL_URL    = 'https://ysdllglxzvgwoooeztlg.supabase.co/rest/v1/position?order=created_at.asc&limit=120';
+// Les 120 positions les PLUS RÉCENTES (desc), remises dans l'ordre chronologique dans fetchTrail()
+const TRAIL_URL    = 'https://ysdllglxzvgwoooeztlg.supabase.co/rest/v1/position?order=created_at.desc&limit=120&select=lat,lon';
 const DIRS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
 function degToDir(d){return DIRS[Math.round(d/22.5)%16];}
 
@@ -634,7 +635,7 @@ let lastLat=null,lastLon=null;
 
 // ── Message de chargement : disparaît dès la première position reçue ──
 let firstLoad=true;
-function loaderDone(){ if(!firstLoad) return; firstLoad=false; const l=document.getElementById('loader'); if(l){ l.classList.add('done'); setTimeout(()=>l.remove(),600); } }
+function loaderDone(){ if(!firstLoad) return; firstLoad=false; const l=document.getElementById('loader'); if(l){ l.classList.add('done'); setTimeout(()=>l.remove(),600); } window.cobiaPosReady=true; if(window.cobiaSplashReady) window.cobiaSplashReady(); }
 setTimeout(()=>{ if(firstLoad){ const t=document.getElementById('loaderText'); if(t) t.innerHTML='Connexion lente, patientez<span class="ld-dots"></span>'; } },15000);
 
 async function fetchPosition(){
@@ -695,7 +696,7 @@ async function fetchTrail(){
     const data=await res.json();
     if(data&&data.length>1){
       // Filtre les coordonnées corrompues (NaN) avant de passer à Leaflet
-      const pts=data.map(p=>[parseFloat(p.lat),parseFloat(p.lon)]).filter(([a,b])=>!isNaN(a)&&!isNaN(b));
+      const pts=data.slice().reverse().map(p=>[parseFloat(p.lat),parseFloat(p.lon)]).filter(([a,b])=>!isNaN(a)&&!isNaN(b));
       if(pts.length>1) trailLine.setLatLngs(pts);
     }
   }catch(e){}
@@ -783,6 +784,10 @@ setInterval(()=>{if(lastLat){fetchMeteo(lastLat,lastLon);fetchGrids(lastLat,last
   function close(){ if(sp.classList.contains('hide')) return; sp.classList.add('hide'); setTimeout(function(){ sp.remove(); },800); }
   if(seen){ sp.remove(); return; }
   sp.addEventListener('click',close);
+  // Fermeture dès que la position est chargée (minimum 1,8 s pour laisser le "Ia ora na"), au plus tard 5 s
+  var minDone=false;
+  window.cobiaSplashReady=function(){ if(minDone) close(); };
+  setTimeout(function(){ minDone=true; if(window.cobiaPosReady) close(); },1800);
   setTimeout(close,5000);
 })();
 </script>
